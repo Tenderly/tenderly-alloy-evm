@@ -227,7 +227,7 @@ impl EvmFactory for EthEvmFactory {
 }
 
 // Inspector implementation for EthNoOpInspector
-impl<DB: Database> Inspector<EthEvmContext<DB>, EthInterpreter> for EthNoOpInspector {
+impl<DB: Database> Inspector<Context<BlockEnv, TxEnv, CfgEnv, DB>, EthInterpreter> for EthNoOpInspector {
     // Empty implementation - NoOpInspector does nothing by design
 }
 
