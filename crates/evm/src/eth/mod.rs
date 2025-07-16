@@ -28,6 +28,10 @@ pub mod spec;
 /// The Ethereum EVM context type.
 pub type EthEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 
+/// Newtype wrapper around NoOpInspector for Ethereum EVM.
+#[derive(Debug, Default, Clone)]
+pub struct EthNoOpInspector(NoOpInspector);
+
 /// Ethereum EVM implementation.
 ///
 /// This is a wrapper type around the `revm` ethereum evm with optional [`Inspector`] (tracing)
@@ -181,7 +185,7 @@ impl EvmFactory for EthEvmFactory {
     type HaltReason = HaltReason;
     type Spec = SpecId;
     type Precompiles = PrecompilesMap;
-    type DefaultInspector = NoOpInspector;
+    type DefaultInspector = EthNoOpInspector;
 
     fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, Self::DefaultInspector>
     where
@@ -220,6 +224,11 @@ impl EvmFactory for EthEvmFactory {
             inspect: true,
         }
     }
+}
+
+// Inspector implementation for EthNoOpInspector
+impl<DB: Database> Inspector<EthEvmContext<DB>, EthInterpreter> for EthNoOpInspector {
+    // Empty implementation - NoOpInspector does nothing by design
 }
 
 #[cfg(test)]
