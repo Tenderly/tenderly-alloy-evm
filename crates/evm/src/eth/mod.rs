@@ -189,7 +189,7 @@ impl EvmFactory for EthEvmFactory {
 
     fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, Self::DefaultInspector>
     where
-        Self::DefaultInspector: Inspector<Self::Context<DB>>,
+        Self::DefaultInspector: Inspector<Self::Context<DB>> + Default + Clone + Send + Sync + 'static,
     {
         let spec_id = input.cfg_env.spec;
         EthEvm {
