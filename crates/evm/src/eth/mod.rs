@@ -226,10 +226,23 @@ impl EvmFactory for EthEvmFactory {
     }
 }
 
-// Inspector implementation for EthNoOpInspector
-impl<DB: Database> Inspector<Context<BlockEnv, TxEnv, CfgEnv, DB>, EthInterpreter> for EthNoOpInspector {
-    // Empty implementation - NoOpInspector does nothing by design
+// Deref implementation for EthNoOpInspector
+impl core::ops::Deref for EthNoOpInspector {
+    type Target = NoOpInspector;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
+
+impl core::ops::DerefMut for EthNoOpInspector {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+// Inspector implementation for EthNoOpInspector - delegates to inner NoOpInspector
+impl<DB: Database> Inspector<Context<BlockEnv, TxEnv, CfgEnv, DB>, EthInterpreter> for EthNoOpInspector {}
 
 #[cfg(test)]
 mod tests {
