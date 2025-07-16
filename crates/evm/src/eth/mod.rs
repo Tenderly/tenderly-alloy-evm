@@ -32,6 +32,10 @@ pub type EthEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 #[derive(Debug, Default, Clone)]
 pub struct EthNoOpInspector(NoOpInspector);
 
+// Safety: NoOpInspector is Send and Sync, so EthNoOpInspector can be too
+unsafe impl Send for EthNoOpInspector {}
+unsafe impl Sync for EthNoOpInspector {}
+
 /// Ethereum EVM implementation.
 ///
 /// This is a wrapper type around the `revm` ethereum evm with optional [`Inspector`] (tracing)
