@@ -245,9 +245,9 @@ impl core::ops::DerefMut for EthNoOpInspector {
     }
 }
 
-// Inspector implementation for EthNoOpInspector - provides NoOp behavior
+// Inspector implementation for EthNoOpInspector - automatic delegation via Deref
 impl<DB: Database> Inspector<Context<BlockEnv, TxEnv, CfgEnv, DB>, EthInterpreter> for EthNoOpInspector {
-    // All methods use default implementation which provides NoOp behavior
+    // Empty implementation uses default trait methods or automatic delegation via Deref
 }
 
 #[cfg(test)]
