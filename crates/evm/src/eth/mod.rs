@@ -182,8 +182,8 @@ where
 pub struct EthEvmFactory;
 
 impl EvmFactory for EthEvmFactory {
-    type Evm<DB: Database, I: Inspector<EthEvmContext<DB>>> = EthEvm<DB, I, Self::Precompiles>;
-    type Context<DB: Database> = EthEvmContext<DB>;
+    type Evm<DB: Database, I: Inspector<Self::Context<DB>>> = EthEvm<DB, I, Self::Precompiles>;
+    type Context<DB: Database> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
     type Tx = TxEnv;
     type Error<DBError: core::error::Error + Send + Sync + 'static> = EVMError<DBError>;
     type HaltReason = HaltReason;
@@ -245,8 +245,8 @@ impl core::ops::DerefMut for EthNoOpInspector {
     }
 }
 
-// Inspector implementation for EthNoOpInspector - automatic delegation via Deref  
-impl<DB: Database> Inspector<EthEvmContext<DB>> for EthNoOpInspector {
+// Inspector implementation for EthNoOpInspector - automatic delegation via Deref
+impl<DB: Database> Inspector<Context<BlockEnv, TxEnv, CfgEnv, DB>> for EthNoOpInspector {
     // Empty implementation uses default trait methods or automatic delegation via Deref
 }
 
