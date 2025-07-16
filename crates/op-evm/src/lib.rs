@@ -166,19 +166,23 @@ impl EvmFactory for OpEvmFactory {
     type HaltReason = OpHaltReason;
     type Spec = OpSpecId;
     type Precompiles = PrecompilesMap;
+    type DefaultInspector = NoOpInspector;
 
     fn create_evm<DB: Database>(
         &self,
         db: DB,
         input: EvmEnv<OpSpecId>,
-    ) -> Self::Evm<DB, NoOpInspector> {
+    ) -> Self::Evm<DB, Self::DefaultInspector>
+    where
+        Self::DefaultInspector: Inspector<Self::Context<DB>>,
+    {
         let spec_id = input.cfg_env.spec;
         OpEvm {
             inner: Context::op()
                 .with_db(db)
                 .with_block(input.block_env)
                 .with_cfg(input.cfg_env)
-                .build_op_with_inspector(NoOpInspector {})
+                .build_op_with_inspector(Self::DefaultInspector::default())
                 .with_precompiles(PrecompilesMap::from_static(
                     OpPrecompiles::new_with_spec(spec_id).precompiles(),
                 )),

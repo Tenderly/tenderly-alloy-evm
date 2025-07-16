@@ -181,15 +181,19 @@ impl EvmFactory for EthEvmFactory {
     type HaltReason = HaltReason;
     type Spec = SpecId;
     type Precompiles = PrecompilesMap;
+    type DefaultInspector = NoOpInspector;
 
-    fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, NoOpInspector> {
+    fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, Self::DefaultInspector>
+    where
+        Self::DefaultInspector: Inspector<Self::Context<DB>>,
+    {
         let spec_id = input.cfg_env.spec;
         EthEvm {
             inner: Context::mainnet()
                 .with_block(input.block_env)
                 .with_cfg(input.cfg_env)
                 .with_db(db)
-                .build_mainnet_with_inspector(NoOpInspector {})
+                .build_mainnet_with_inspector(Self::DefaultInspector::default())
                 .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
                     PrecompileSpecId::from_spec_id(spec_id),
                 ))),
