@@ -217,7 +217,7 @@ pub trait EvmFactory {
     /// Precompiles used by the EVM.
     type Precompiles;
     /// Default inspector used when no specific inspector is provided.
-    type DefaultInspector: Default + Clone + Send + Sync + 'static;
+    type DefaultInspector;
 
     /// Creates a new instance of an EVM with the default inspector.
     fn create_evm<DB: Database>(
@@ -226,7 +226,7 @@ pub trait EvmFactory {
         evm_env: EvmEnv<Self::Spec>,
     ) -> Self::Evm<DB, Self::DefaultInspector>
     where
-        Self::DefaultInspector: Inspector<Self::Context<DB>>;
+        Self::DefaultInspector: Inspector<Self::Context<DB>> + Default + Clone + Send + Sync + 'static;
 
     /// Creates a new instance of an EVM with an inspector.
     ///
