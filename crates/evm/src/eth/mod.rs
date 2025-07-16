@@ -245,9 +245,49 @@ impl core::ops::DerefMut for EthNoOpInspector {
     }
 }
 
-// Inspector implementation for EthNoOpInspector - automatic delegation via Deref
+// Inspector implementation for EthNoOpInspector - complete NoOp implementation
 impl<DB: Database> Inspector<EthEvmContext<DB>> for EthNoOpInspector {
-    // Empty implementation uses default trait methods or automatic delegation via Deref
+    fn step(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut EthEvmContext<DB>) {
+        // NoOp - do nothing
+    }
+
+    fn step_end(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut EthEvmContext<DB>) {
+        // NoOp - do nothing
+    }
+
+    fn call(
+        &mut self,
+        _context: &mut EthEvmContext<DB>,
+        _inputs: &mut revm::interpreter::CallInputs,
+    ) -> Option<revm::interpreter::CallOutcome> {
+        None // NoOp - no override
+    }
+
+    fn call_end(
+        &mut self,
+        _context: &mut EthEvmContext<DB>,
+        _inputs: &revm::interpreter::CallInputs,
+        _outcome: &mut revm::interpreter::CallOutcome,
+    ) {
+        // NoOp - do nothing
+    }
+
+    fn create(
+        &mut self,
+        _context: &mut EthEvmContext<DB>,
+        _inputs: &mut revm::interpreter::CreateInputs,
+    ) -> Option<revm::interpreter::CreateOutcome> {
+        None // NoOp - no override
+    }
+
+    fn create_end(
+        &mut self,
+        _context: &mut EthEvmContext<DB>,
+        _inputs: &revm::interpreter::CreateInputs,
+        _outcome: &mut revm::interpreter::CreateOutcome,
+    ) {
+        // NoOp - do nothing
+    }
 }
 
 #[cfg(test)]
