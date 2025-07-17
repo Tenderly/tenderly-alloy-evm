@@ -35,13 +35,13 @@ pub struct EthNoOpInspector(NoOpInspector);
 // Explicit implementations since NoOpInspector might not have these traits
 impl Default for EthNoOpInspector {
     fn default() -> Self {
-        Self(NoOpInspector {}) // Create empty NoOpInspector
+        Self(NoOpInspector::default()) // Use Default trait if available
     }
 }
 
 impl Clone for EthNoOpInspector {
     fn clone(&self) -> Self {
-        Self(NoOpInspector {}) // NoOpInspector is stateless, so empty instance is fine
+        Self(self.0.clone()) // Clone the inner NoOpInspector
     }
 }
 
