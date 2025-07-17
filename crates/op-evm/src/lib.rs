@@ -31,6 +31,87 @@ use revm::{
 pub mod block;
 pub use block::{OpBlockExecutionCtx, OpBlockExecutor, OpBlockExecutorFactory};
 
+/// Newtype wrapper around NoOpInspector for OP EVM.
+#[derive(Debug)]
+pub struct OpNoOpInspector(NoOpInspector);
+
+// Explicit implementations since NoOpInspector might not have these traits
+impl Default for OpNoOpInspector {
+    fn default() -> Self {
+        Self(NoOpInspector) // Direct construction without relying on Default trait
+    }
+}
+
+impl Clone for OpNoOpInspector {
+    fn clone(&self) -> Self {
+        Self(NoOpInspector) // Direct construction - NoOpInspector is stateless
+    }
+}
+
+// Safety: NoOpInspector is Send and Sync, so OpNoOpInspector can be too
+unsafe impl Send for OpNoOpInspector {}
+unsafe impl Sync for OpNoOpInspector {}
+
+// Deref implementation for OpNoOpInspector
+impl core::ops::Deref for OpNoOpInspector {
+    type Target = NoOpInspector;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl core::ops::DerefMut for OpNoOpInspector {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+// Inspector implementation for OpNoOpInspector
+impl<DB: Database> Inspector<OpContext<DB>> for OpNoOpInspector {
+    fn step(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut OpContext<DB>) {
+        // NoOp - do nothing
+    }
+
+    fn step_end(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut OpContext<DB>) {
+        // NoOp - do nothing  
+    }
+
+    fn call(
+        &mut self,
+        _context: &mut OpContext<DB>,
+        _inputs: &mut revm::interpreter::CallInputs,
+    ) -> Option<revm::interpreter::CallOutcome> {
+        None // NoOp - no override
+    }
+
+    fn call_end(
+        &mut self,
+        _context: &mut OpContext<DB>,
+        _inputs: &revm::interpreter::CallInputs,
+        _outcome: &mut revm::interpreter::CallOutcome,
+    ) {
+        // NoOp - do nothing
+    }
+
+    fn create(
+        &mut self,
+        _context: &mut OpContext<DB>,
+        _inputs: &mut revm::interpreter::CreateInputs,
+    ) -> Option<revm::interpreter::CreateOutcome> {
+        None // NoOp - no override
+    }
+
+    fn create_end(
+        &mut self,
+        _context: &mut OpContext<DB>,
+        _inputs: &revm::interpreter::CreateInputs,
+        _outcome: &mut revm::interpreter::CreateOutcome,
+    ) {
+        // NoOp - do nothing
+    }
+}
+
 /// OP EVM implementation.
 ///
 /// This is a wrapper type around the `revm` evm with optional [`Inspector`] (tracing)
@@ -166,7 +247,7 @@ impl EvmFactory for OpEvmFactory {
     type HaltReason = OpHaltReason;
     type Spec = OpSpecId;
     type Precompiles = PrecompilesMap;
-    type DefaultInspector = NoOpInspector;
+    type DefaultInspector = OpNoOpInspector;
 
     fn create_evm<DB: Database>(
         &self,
@@ -174,7 +255,7 @@ impl EvmFactory for OpEvmFactory {
         input: EvmEnv<OpSpecId>,
     ) -> Self::Evm<DB, Self::DefaultInspector>
     where
-        Self::DefaultInspector: Inspector<Self::Context<DB>>,
+        Self::DefaultInspector: Inspector<Self::Context<DB>> + Default + Clone + Send + Sync + 'static,
     {
         let spec_id = input.cfg_env.spec;
         OpEvm {
