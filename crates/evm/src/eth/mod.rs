@@ -29,8 +29,21 @@ pub mod spec;
 pub type EthEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 
 /// Newtype wrapper around NoOpInspector for Ethereum EVM.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug)]
 pub struct EthNoOpInspector(NoOpInspector);
+
+// Explicit implementations since NoOpInspector might not have these traits
+impl Default for EthNoOpInspector {
+    fn default() -> Self {
+        Self(NoOpInspector {}) // Create empty NoOpInspector
+    }
+}
+
+impl Clone for EthNoOpInspector {
+    fn clone(&self) -> Self {
+        Self(NoOpInspector {}) // NoOpInspector is stateless, so empty instance is fine
+    }
+}
 
 // Safety: NoOpInspector is Send and Sync, so EthNoOpInspector can be too
 unsafe impl Send for EthNoOpInspector {}
