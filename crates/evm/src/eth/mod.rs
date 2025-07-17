@@ -196,7 +196,7 @@ pub struct EthEvmFactory;
 
 impl EvmFactory for EthEvmFactory {
     type Evm<DB: Database, I: Inspector<Self::Context<DB>>> = EthEvm<DB, I, Self::Precompiles>;
-    type Context<DB: Database> = EthEvmContext<DB>;
+    type Context<DB: Database> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
     type Tx = TxEnv;
     type Error<DBError: core::error::Error + Send + Sync + 'static> = EVMError<DBError>;
     type HaltReason = HaltReason;
@@ -258,19 +258,19 @@ impl core::ops::DerefMut for EthNoOpInspector {
     }
 }
 
-// Inspector implementation for EthNoOpInspector - complete NoOp implementation
-impl<DB: Database> Inspector<EthEvmContext<DB>> for EthNoOpInspector {
-    fn step(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut EthEvmContext<DB>) {
+// Inspector implementation for EthNoOpInspector - complete NoOp implementation  
+impl<DB: Database> Inspector<Context<BlockEnv, TxEnv, CfgEnv, DB>> for EthNoOpInspector {
+    fn step(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut Context<BlockEnv, TxEnv, CfgEnv, DB>) {
         // NoOp - do nothing
     }
 
-    fn step_end(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut EthEvmContext<DB>) {
+    fn step_end(&mut self, _interp: &mut revm::interpreter::Interpreter, _context: &mut Context<BlockEnv, TxEnv, CfgEnv, DB>) {
         // NoOp - do nothing
     }
 
     fn call(
         &mut self,
-        _context: &mut EthEvmContext<DB>,
+        _context: &mut Context<BlockEnv, TxEnv, CfgEnv, DB>,
         _inputs: &mut revm::interpreter::CallInputs,
     ) -> Option<revm::interpreter::CallOutcome> {
         None // NoOp - no override
@@ -278,7 +278,7 @@ impl<DB: Database> Inspector<EthEvmContext<DB>> for EthNoOpInspector {
 
     fn call_end(
         &mut self,
-        _context: &mut EthEvmContext<DB>,
+        _context: &mut Context<BlockEnv, TxEnv, CfgEnv, DB>,
         _inputs: &revm::interpreter::CallInputs,
         _outcome: &mut revm::interpreter::CallOutcome,
     ) {
@@ -287,7 +287,7 @@ impl<DB: Database> Inspector<EthEvmContext<DB>> for EthNoOpInspector {
 
     fn create(
         &mut self,
-        _context: &mut EthEvmContext<DB>,
+        _context: &mut Context<BlockEnv, TxEnv, CfgEnv, DB>,
         _inputs: &mut revm::interpreter::CreateInputs,
     ) -> Option<revm::interpreter::CreateOutcome> {
         None // NoOp - no override
@@ -295,7 +295,7 @@ impl<DB: Database> Inspector<EthEvmContext<DB>> for EthNoOpInspector {
 
     fn create_end(
         &mut self,
-        _context: &mut EthEvmContext<DB>,
+        _context: &mut Context<BlockEnv, TxEnv, CfgEnv, DB>,
         _inputs: &revm::interpreter::CreateInputs,
         _outcome: &mut revm::interpreter::CreateOutcome,
     ) {
